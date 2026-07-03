@@ -11,6 +11,12 @@ jobs:
   test-pos203:
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+
     defaults:
       run:
         working-directory: point_of_sale_backend
@@ -29,17 +35,8 @@ jobs:
       - name: Install backend dependencies
         run: npm ci
 
-      - name: Ensure MONGO_URI secret exists
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: |
-          if [ -z "$MONGO_URI" ]; then
-            echo "Missing required GitHub secret: MONGO_URI"
-            exit 1
-          fi
-
       - name: Run POS-203 integration tests
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_URI: mongodb://localhost:27017/test_pos203
           JWT_SECRET: ci_jwt_secret
         run: npm run test:pos203

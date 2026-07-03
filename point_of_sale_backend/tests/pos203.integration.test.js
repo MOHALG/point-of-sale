@@ -121,7 +121,20 @@ test.before(async () => {
   const db = mongoose.connection.collection.bind(mongoose.connection);
   const usersCol = db('users');
 
-  const posDocs = await db('pos').find({}).limit(2).toArray();
+  let posDocs = await db('pos').find({}).limit(2).toArray();
+  if (posDocs.length < 2) {
+    const needed = 2 - posDocs.length;
+    await db('pos').insertMany(
+      Array.from({ length: needed }, (_, i) => ({
+        name: `${prefix}_pos_${String.fromCharCode(97 + i)}`,
+        location: `Test Location ${i + 1}`,
+        paymentMethods: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }))
+    );
+    posDocs = await db('pos').find({}).limit(2).toArray();
+  }
   assert.ok(posDocs.length >= 2, 'Need at least 2 POS docs for cross-POS integration tests');
 
   assignedPos = String(posDocs[0]._id);
@@ -234,6 +247,7 @@ test.after(async () => {
 
     await db('items').deleteMany({ name: { $regex: `^${prefix}_` } });
     await db('itemcategories').deleteMany({ name: { $regex: `^${prefix}_` } });
+    await db('pos').deleteMany({ name: { $regex: `^${prefix}_` } });
     await db('users').deleteMany({ username: { $regex: `^${prefix}_` } });
   } finally {
     await mongoose.disconnect();
