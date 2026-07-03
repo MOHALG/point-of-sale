@@ -126,7 +126,7 @@ test.before(async () => {
     const needed = 2 - posDocs.length;
     await db('pos').insertMany(
       Array.from({ length: needed }, (_, i) => ({
-        name: `${prefix}_pos_${String.fromCharCode(97 + i)}`,
+        name: `${prefix}_pos_${i}`,
         location: `Test Location ${i + 1}`,
         paymentMethods: [],
         createdAt: new Date(),
