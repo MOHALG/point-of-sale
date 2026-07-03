@@ -10,9 +10,12 @@ const API = process.env.API_BASE_URL || 'http://localhost:3000';
 const PASSWORD = process.env.TEST_PASSWORD || 'Smoke12345';
 const ts = Date.now();
 const prefix = `itest_pos203_${ts}`;
+const SERVER_START_TIMEOUT_MS = Number(process.env.SERVER_START_TIMEOUT_MS || 60000);
 
 let serverProcess = null;
 let startedServer = false;
+let serverStdout = '';
+let serverStderr = '';
 
 let assignedPos = null;
 let crossPos = null;
@@ -67,23 +70,44 @@ async function isServerUp() {
   }
 }
 
-async function waitForServer(timeoutMs = 15000) {
+async function waitForServer(timeoutMs = SERVER_START_TIMEOUT_MS) {
   const startedAt = Date.now();
   while (Date.now() - startedAt < timeoutMs) {
+    if (serverProcess && serverProcess.exitCode !== null) {
+      throw new Error(
+        `Backend process exited early with code ${serverProcess.exitCode}. stderr: ${serverStderr.slice(-600) || '(empty)'}`
+      );
+    }
+
     if (await isServerUp()) return;
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
-  throw new Error('Timed out waiting for backend server to start.');
+  throw new Error(
+    `Timed out waiting for backend server to start after ${timeoutMs}ms. stdout: ${serverStdout.slice(-600) || '(empty)'} stderr: ${serverStderr.slice(-600) || '(empty)'}`
+  );
 }
 
 async function ensureServer() {
   if (await isServerUp()) return;
 
   const serverPath = path.join(process.cwd(), 'server.js');
-  serverProcess = spawn('node', [serverPath], {
+  serverProcess = spawn(process.execPath, [serverPath], {
     cwd: process.cwd(),
     stdio: 'pipe',
-    shell: true,
+  });
+
+  serverProcess.stdout.on('data', (chunk) => {
+    serverStdout += chunk.toString();
+    if (serverStdout.length > 12000) {
+      serverStdout = serverStdout.slice(-12000);
+    }
+  });
+
+  serverProcess.stderr.on('data', (chunk) => {
+    serverStderr += chunk.toString();
+    if (serverStderr.length > 12000) {
+      serverStderr = serverStderr.slice(-12000);
+    }
   });
 
   startedServer = true;
