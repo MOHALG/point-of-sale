@@ -1,0 +1,45 @@
+name: POS-203 Backend Tests
+
+on:
+  pull_request:
+    paths:
+      - point_of_sale_backend/**
+      - .github/workflows/pos203-backend-tests.yml
+  workflow_dispatch:
+
+jobs:
+  test-pos203:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: point_of_sale_backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: point_of_sale_backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Ensure MONGO_URI secret exists
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: |
+          if [ -z "$MONGO_URI" ]; then
+            echo "Missing required GitHub secret: MONGO_URI"
+            exit 1
+          fi
+
+      - name: Run POS-203 integration tests
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ci_jwt_secret
+        run: npm run test:pos203
