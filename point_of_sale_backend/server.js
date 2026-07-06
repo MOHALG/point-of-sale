@@ -11,7 +11,7 @@ const createPosRouter = require('./controllers/create.pos.routes');
 const itemRouter = require('./controllers/create.new.item.routes');
 const categoryRouter = require('./controllers/new.category.routes');
 const errorHandler = require('./middleware/error-handler.js');
-const adminUserManagementRouter = require('./controllers/admin.user.managment.routes');
+const adminUserManagementRouter = require('./controllers/admin.user.management.routes');
 
 
 
