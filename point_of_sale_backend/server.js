@@ -11,7 +11,7 @@ const createPosRouter = require('./controllers/create.pos.routes');
 const itemRouter = require('./controllers/create.new.item.routes');
 const categoryRouter = require('./controllers/new.category.routes');
 const errorHandler = require('./middleware/error-handler.js');
-
+const adminUserManagementRouter = require('./controllers/admin.user.managment.routes');
 
 
 
@@ -29,8 +29,10 @@ app.use('/auth', authRouter);
 app.use('/pos', createPosRouter);
 app.use('/items', itemRouter);
 app.use('/categories', categoryRouter);
+app.use('/admin/users', adminUserManagementRouter);
 app.use(errorHandler);
 
-app.listen(3000, () => {
-  console.log('The express app is ready!');
+const PORT = Number(process.env.PORT || 3000);
+app.listen(PORT, () => {
+  console.log(`The express app is ready on port ${PORT}!`);
 });

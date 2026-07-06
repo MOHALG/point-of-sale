@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
 
 require('dotenv').config();
 
-const API = process.env.API_BASE_URL || 'http://localhost:3000';
+const PORT = Number(process.env.PORT || 3000);
+const API = process.env.API_BASE_URL || `http://localhost:${PORT}`;
 const PASSWORD = process.env.TEST_PASSWORD || 'Smoke12345';
 const ts = Date.now();
 const prefix = `itest_pos206_${ts}`;
@@ -91,7 +92,7 @@ async function waitForServer(timeoutMs = SERVER_START_TIMEOUT_MS) {
 async function ensureServer() {
 	if (await isServerUp()) return;
 
-	const serverPath = path.join(process.cwd(), 'server.js');
+	const serverPath = path.resolve(__dirname, '..', 'server.js');
 	serverProcess = spawn(process.execPath, [serverPath], {
 		cwd: process.cwd(),
 		stdio: 'pipe',
