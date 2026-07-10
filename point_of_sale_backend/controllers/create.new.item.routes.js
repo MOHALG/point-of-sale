@@ -9,14 +9,13 @@ router.post('/create', verifyToken, requireRoles('admin', 'manager'), ownerMiddl
     try {
         const { name, price, pos, description, unitOfMeasurement, itemCategory } = req.body;
 
+        const normalizedPrice =
+            typeof price === 'string' ? Number(price.trim()) : price;
+    
         if (!name || typeof name !== 'string' || !name.trim()) {
             return res.status(400).json({ message: 'name is required' });
         }
-
-        if (typeof price !== 'number' || Number.isNaN(price) || price < 0) {
-            return res.status(400).json({ message: 'price must be a number greater than or equal to 0' });
-        }
-
+ 
         if (!pos || !isValidObjectId(pos)) {
             return res.status(400).json({ message: 'pos must be a valid POS id' });
         }
@@ -26,8 +25,7 @@ router.post('/create', verifyToken, requireRoles('admin', 'manager'), ownerMiddl
         }
 
         const createdItem = await Item.create({
-            name,
-            price,
+            name,            price: normalizedPrice,
             pos,
             description,
             unitOfMeasurement,

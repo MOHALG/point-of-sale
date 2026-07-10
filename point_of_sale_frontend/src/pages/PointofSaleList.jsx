@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router';
 
-function Pointofsale() {
+function PointofSaleList() {
   const [posList, setPosList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -53,9 +53,9 @@ function Pointofsale() {
       {!loading && !error && (
         <ul>
           {posList.map((pos) => (
-            <Link to={`/pos/${pos._id}`} key={pos._id} style={{ textDecoration: 'none' }}>
-              <li>{pos.name}</li>
-            </Link>
+            <li key={pos._id}>
+              <Link to={`/pos/${pos._id}`}>{pos.name}</Link>
+            </li>
           ))}
         </ul>
       )}
@@ -64,4 +64,4 @@ function Pointofsale() {
   );
 }
 
-export default Pointofsale;
+export default PointofSaleList;

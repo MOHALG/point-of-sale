@@ -2,39 +2,37 @@ import { Link } from 'react-router'
 
 function Navbar({ user, setUser }) {
 
-
-  function logOut(){
+  function logOut() {
     localStorage.removeItem('token')
     setUser(null)
   }
 
   return (
-    <div>
-      {/* Routes seen by everyone */}
-      <Link className='nav-item' to='/'>Homepage</Link>
+    <header className='topbar'>
+      <div className='topbar__brand'>Point of Sale</div>
 
-      {user ? (
-        // Links for protected routes only for logged in users
-        <>
-        <Link className='nav-item' to='/dashboard'>Dashboard</Link>
+      <nav className='topbar__nav' aria-label='Primary navigation'>
+        <Link className='nav-item' to='/'>Homepage</Link>
 
-        <span className='nav-item'>{user.username}</span>
-       
-        <button className='nav-item' onClick={logOut}>Log Out</button>
-
-
-        </>
-      ) :
-      (
-        // links for not logged in users
-        <>
-        <Link className='nav-item' to='/sign-up'>Sign up</Link>
-        <Link className='nav-item' to='/sign-in'>Sign in</Link>
-
-        </>
-      )
-      }
-    </div>
+        {user ? (
+          <>
+            <Link className='nav-item' to='/dashboard'>Dashboard</Link>
+            <Link className='nav-item' to='/categories'>Categories</Link>
+            {user.role === 'admin' && (
+              <Link className='nav-item' to='/admin/users'>Users</Link>
+            )}
+            <Link className='nav-item' to='/create-item'>Create Item</Link>
+            <span className='nav-item nav-item--muted'>{user.username}</span>
+            <button className='nav-item nav-item--button' onClick={logOut}>Log Out</button>
+          </>
+        ) : (
+          <>
+            <Link className='nav-item' to='/sign-up'>Sign up</Link>
+            <Link className='nav-item' to='/sign-in'>Sign in</Link>
+          </>
+        )}
+      </nav>
+    </header>
   )
 }
 

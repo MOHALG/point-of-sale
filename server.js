@@ -9,8 +9,6 @@ const authRouter = require('./point_of_sale_backend/controllers/auth.routes');
 const createPosRouter = require('./point_of_sale_backend/controllers/create.pos.routes');
 
 
-
-
 mongoose.connect(process.env.MONGO_URI);
 mongoose.connection.on('connected', () => {
   console.log(`Connected to MongoDB ${mongoose.connection.name}.`);
@@ -21,7 +19,6 @@ app.use(logger('dev'));
 
 app.use('/auth', authRouter);
 app.use('/pos', createPosRouter);
-
 
 
 
